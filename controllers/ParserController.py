@@ -15,10 +15,8 @@ class ParserController:
 
             soup = BeautifulSoup(response.text, "html.parser")
             # on get la première balise
-            alert = soup.find("a", class_="c-li__link")
-
-            if not alert:
-                self.logs ["info"] = "null"
+            div = soup.find("div", class_="item cert-alert open")
+            alert = div.find("div", class_="item-title").find("a")
 
             title = alert.get_text(strip=True)
             href = alert.get("href")
@@ -26,15 +24,15 @@ class ParserController:
             # sécurité si les urls sont non conformes
             if not href.startswith("http"):
                 href = self.certUrl.rstrip("/") + href
-
+            
             self.logs = {
                 "date_parsed": timestamp,
                 "title": title,
                 "url": href
             }
+            return self.logs
 
         except requests.RequestException as e:
             print(f"[!] Network error : {e}")
             self.logs["info"] = f"error : {e}"
-
-        return self.logs
+            return self.logs

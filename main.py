@@ -4,34 +4,54 @@ from controllers.SondeControl import SondeControl
 from controllers.JsonController import JsonController
 from controllers.ParserController import ParserController
 
-def main():
-    # timestamp
-    now = datetime.datetime.now().isoformat()
+def manage_sondes(now):
+    # var needed
     day = datetime.datetime.now().strftime("%Y-%m-%d")
-    year = datetime.datetime.now().strftime("%Y")
-    # init des controllers
+
+    # controllers
     sc = SondeControl()
     jcl = JsonController("/home/titiplex/ams/logs/sondesLogs", day)
-    jcc = JsonController("/home/titiplex/ams/logs/certLogs", year)
-    parser = ParserController()
-    # collecte
-    print("1")
-    sysInfo = sc.collectSysInfo(now)
-    certInfo = parser.getLastAlert(now)
-    print("2")
-    # clean des logs
     jcl.clean(now, 7)
-    jcc.clean(now, 365)
-    print("3")
-    # json
+
+    # harvest
+    sysInfo = sc.collectSysInfo(now)
+
+    # logs (json)
     jcl.printLogs(day + ".json", sysInfo)
-    if not jcc.exists("title", certInfo["title"]):
-        jcc.printLogs(year + ".json", certInfo)
-        jcc.print("### New Cert Alert ###")
-    # terminal
+
+    # logs (cron)
     print("\n")
     sc.printTerminal()
     jcl.printTerminal("### JsonControl ###")
+
+def manage_cert(now):
+    # var needed
+    year = datetime.datetime.now().strftime("%Y")
+    
+    # controllers
+    jcc = JsonController("/home/titiplex/ams/logs/certLogs", year)
+    parser = ParserController()
+    jcc.clean(now, 365)
+
+    # collecte
+    certInfo = parser.getLastAlert(now)
+
+    if not jcc.exists("title", certInfo["title"]):
+
+        # logs (json)
+        jcc.printLogs(year + ".json", certInfo)
+
+        # logs (cron)
+        jcc.print("### New Cert Alert ###")
+    else:
+        print("No new cert alert")
+
+def main():
+    # timestamp
+    now = datetime.datetime.now().isoformat()
+    
+    manage_sondes(now)
+    manage_cert(now)
 
 if __name__ == "__main__":
     main()

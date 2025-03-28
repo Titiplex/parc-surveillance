@@ -56,7 +56,7 @@ class JsonController:
                     # nom du fichier sans extension
                     filename = os.path.splitext(file)[0]
                     # transforme en date
-                    datefile = datetime.datetime.fromisoformat(filename)
+                    datefile = datetime.datetime.fromisoformat(filename + "-01-01").replace(tzinfo=None)
 
                     # condition pour nettoyage
                     if datefile < limite:
@@ -77,20 +77,21 @@ class JsonController:
     def exists(self, key, value):
         for file in os.listdir(self.dirname):
             path = os.path.join(self.dirname, file)
-
             if os.path.isfile(path) and file.endswith(".json"):
                 try:
-                    with open(path, "r") as f:
+                    with open(path) as f:
                         data = json.load(f)
-
-                        if isinstance(data, dict):
-                            if key in data:
-                                if data[key] == value:
-                                    return True
-                                else: return False
-                            else:
-                                raise KeyError(f"Key {key} doesn't exist in {path}")
+                        if isinstance(data, list):
+                            for obj in data:
+                                if isinstance(obj, dict) and key in obj:
+                                    if obj[key] == value:
+                                        return True
+                        elif isinstance(data, dict):
+                            if key in data and data[key] == value:
+                                return True
                         else:
-                            raise TypeError(f"file {path} is not correctly formatted to json")
+                            print(f"Format inattendu dans {path}")
                 except json.JSONDecodeError as e:
                     print(f"Invalide Json : " + e)
+        
+        return False
