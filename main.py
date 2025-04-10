@@ -72,9 +72,7 @@ def main():
     
     manage_sondes(now)
     manage_cert(now)
-    print("1")
     manage_crisis(now)
-    print("2")
 
     sonde_name = "cpuPercent"
     output_path = f"/home/titiplex/ams/logs/graphs/{now}.svg"

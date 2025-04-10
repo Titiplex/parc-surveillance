@@ -1,5 +1,6 @@
 logs/cron.log
-logs/certLogs/*
-logs/sondesLogs/*
-logs/certLogs/*
-controllers/__pycache__/*
+logs/certLogs/
+logs/sondesLogs/
+logs/certLogs/
+logs/graphs/
+controllers/__pycache__/
