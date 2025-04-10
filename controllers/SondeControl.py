@@ -37,4 +37,4 @@ class SondeControl :
     def printTerminal(self):
         print("### SondeControl ###")
         for cle, valeur in self.logs.items():
-            print(f"{valeur}")
+            print(f"{cle} : {valeur}")
