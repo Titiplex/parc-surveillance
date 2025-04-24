@@ -25,6 +25,7 @@ class CrisisController:
         self.logs_path = logs_path
         self.sondes = self.get_latest_log()
         self.seuils = seuils
+        self.email="youremail"
     
     def checkseuils(self):
         alerts = {}
@@ -36,10 +37,9 @@ class CrisisController:
         if len(alerts)!=0:
             subject = f"!! Alert System, Machine {self.sondes['machineName']}"
             content = "Voici les problèmes trouves :\r\n"
-            email = "titouan.johanny@alumni.univ-avignon.fr"
 
             content += str(alerts)
-            mc = MailController(subject, content, email)
+            mc = MailController(subject, content, self.email)
             mc.send_mail()
             result.update(mc.get_result())
         else:

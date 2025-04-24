@@ -34,8 +34,8 @@ class JsonController:
         data.append(dictionary)
 
         # save
-        with open(path, "w") as f:
-            json.dump(data, f, indent=4)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
 
     def printTerminal(self, head):
         print(head)

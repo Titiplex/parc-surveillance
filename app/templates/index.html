@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Surveillance – Graphiques</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif}
+    select{margin:10px;display:inline-block;padding:4px}
+    #svg-container{width:80%;margin:20px auto;text-align:center}
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center">Surveillance du parc</h1>
+
+  <div style="text-align:center">
+    <label>Sonde :
+      <select id="sonde-select"><option value="">— Choisir —</option></select>
+    </label>
+    <label>Machine :
+      <select id="machine-select"><option value="">— Choisir —</option></select>
+    </label>
+  </div>
+
+  <div id="svg-container">
+    <p>Sélectionnez une sonde ET une machine ci-dessous.</p>
+  </div>
+
+  <!-- Nouveau conteneur CERT -->
+  <h2 style="text-align:center; margin-top:40px">Alertes CERT récentes</h2>
+  <table id="cert-table" border="1" cellpadding="6" style="margin: auto; border-collapse: collapse;">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Titre</th>
+        <th>Lien</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="3" style="text-align:center">Chargement…</td></tr>
+    </tbody>
+  </table>
+
+<script>
+  function loadCertLogs() {
+    const tbody = document.querySelector("#cert-table tbody");
+    fetch("/api/cert_logs")
+      .then(r=>r.json())
+      .then(arr=>{
+        if (!arr.length) {
+          tbody.innerHTML = "<tr><td colspan='3' style='text-align:center'>Aucune alerte.</td></tr>";
+          return;
+        }
+        tbody.innerHTML = "";
+        // on parcourt chaque alerte
+        arr.forEach(alert => {
+          const tr = document.createElement("tr");
+          const date = new Date(alert.date_parsed).toLocaleString();
+          tr.innerHTML = `
+            <td>${date}</td>
+            <td>${alert.title}</td>
+            <td><a href="${alert.url}" target="_blank">Voir</a></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(e=>{
+        tbody.innerHTML = "<tr><td colspan='3' style='text-align:center;color:red'>Erreur de chargement.</td></tr>";
+        console.error(e);
+      });
+  }
+document.addEventListener("DOMContentLoaded", () => {
+  const selS = document.getElementById("sonde-select");
+  const selM = document.getElementById("machine-select");
+  const cont = document.getElementById("svg-container");
+
+  // 1) Charger sondes et machines
+  fetch("/api/sondes").then(r=>r.json()).then(arr=>{
+    arr.forEach(s=>{
+      let o = new Option(s, s);
+      selS.add(o);
+    });
+  });
+  fetch("/api/machines").then(r=>r.json()).then(arr=>{
+    arr.forEach(m=>{
+      let o = new Option(m, m);
+      selM.add(o);
+    });
+  });
+
+  // 2) Quand les deux sont sélectionnés, on génère
+  function tryLoad() {
+    const s = selS.value, m = selM.value;
+    if (!s || !m) {
+      cont.innerHTML = "<p>Veuillez sélectionner sonde ET machine.</p>";
+      return;
+    }
+    fetch(`/api/svg/${s}/${m}`)
+      .then(r=>{ if(!r.ok) throw ""; return r.text(); })
+      .then(svg=>{
+        cont.innerHTML = svg;
+      })
+      .catch(_=> cont.innerHTML = "<p>Impossible de charger le graphique.</p>");
+  }
+
+  selS.addEventListener("change", tryLoad);
+  selM.addEventListener("change", tryLoad);
+
+  // 3) Charger les alertes CERT
+  loadCertLogs();
+});
+</script>
+</body>
+</html>

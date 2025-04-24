@@ -5,7 +5,7 @@ class MailController:
         self.subject = suject
         self.content = content
         self.destination = destination
-        self.origin = "titouan.johanny@alumni.univ-avignon.fr"
+        self.origin = "originmail"
         self.resultat = ""
     
     def send_mail(self):

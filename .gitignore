@@ -2,5 +2,6 @@ logs/cron.log
 logs/certLogs/
 logs/sondesLogs/
 logs/certLogs/
+logs/crisisLogs/
 logs/graphs/
 controllers/__pycache__/

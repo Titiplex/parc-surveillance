@@ -1,0 +1,1 @@
+rm /home/titiplex/ams/logs/graphs/*

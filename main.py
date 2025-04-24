@@ -4,7 +4,6 @@ from controllers.SondeControl import SondeControl
 from controllers.JsonController import JsonController
 from controllers.ParserController import ParserController
 from controllers.CrisisController import CrisisController
-from controllers.GraphController import GraphController
 
 def manage_sondes(now):
     # var needed
@@ -73,11 +72,6 @@ def main():
     manage_sondes(now)
     manage_cert(now)
     manage_crisis(now)
-
-    sonde_name = "cpuPercent"
-    output_path = f"/home/titiplex/ams/logs/graphs/{now}.svg"
-    gc = GraphController(sonde_name)
-    gc.generate_svg_graph(output_path)
 
 if __name__ == "__main__":
     main()
